@@ -1,0 +1,122 @@
+openapi: 3.0.1
+info:
+  title: My Todo API
+  description: My Todo API description
+  version: '1.0'
+servers:
+  - url: https://tvonment-cautious-happiness-wxrqjwwp94vc9gv5-3000.preview.app.github.dev
+paths:
+  /api/todos:
+    get:
+      summary: Get the list of todos
+      operationId: getTodos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodosResponse'
+    post:
+      summary: Create a new todo
+      operationId: createTodo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+  /api/todos/{id}:
+    get:
+      summary: Get a todo by ID
+      operationId: getTodoById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '404':
+          description: Not Found
+    put:
+      summary: Update a todo by ID
+      operationId: updateTodoById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Todo'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Todo'
+        '404':
+          description: Not Found
+    delete:
+      summary: Delete a todo by ID
+      operationId: deleteTodoById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The ID of the todo.
+          x-display: false
+        title:
+          type: string
+          description: The title of the todo.
+        content:
+          type: string
+          description: The content of the todo.
+        dueDate:
+          type: string
+          format: date-time
+          description: The due date of the todo.
+      required:
+        - title
+        - content
+        - dueDate
+
+    TodosResponse:
+      type: object
+      properties:
+        todos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Todo'
+          description: The list of todos.
