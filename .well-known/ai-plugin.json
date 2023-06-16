@@ -9,9 +9,9 @@
     },
     "api": {
         "type": "openapi",
-        "url": "https://tvonment-cautious-happiness-wxrqjwwp94vc9gv5-3000.preview.app.github.dev/.well-known/openapi.yaml"
+        "url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/openapi.yaml"
     },
-    "logo_url": "https://tvonment-cautious-happiness-wxrqjwwp94vc9gv5-3000.preview.app.github.dev/.well-known/logo.png",
+    "logo_url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/logo.png",
     "contact_email": "dev@dev.com",
     "legal_info_url": "http://www.mydev.com/legal"
 }

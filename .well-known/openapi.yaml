@@ -4,7 +4,7 @@ info:
   description: My Todo API description
   version: '1.0'
 servers:
-  - url: https://tvonment-cautious-happiness-wxrqjwwp94vc9gv5-3000.preview.app.github.dev
+  - url: https://gpt-plugin-todo-webapp.azurewebsites.net
 paths:
   /api/todos:
     get:
