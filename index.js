@@ -3,7 +3,7 @@ const CosmosClient = require('@azure/cosmos').CosmosClient;
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const endpoint = process.env.COSMOS_ENDPOINT;
 const key = process.env.COSMOS_KEY;
@@ -33,6 +33,9 @@ app.use(cors({
 }));
 app.use('/.well-known', express.static('.well-known'));
 app.use(express.json());
+
+app.get('/', (req, res) => res.send('App Running!'));
+
 app.get('/api/todos', async (req, res) => {
     const querySpec = {
         query: 'SELECT * FROM c'
@@ -95,6 +98,7 @@ app.delete('/api/todos/:id', async (req, res) => {
         res.sendStatus(500);
     }
 });
+
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
 });
