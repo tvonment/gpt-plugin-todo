@@ -1,4 +1,6 @@
 const express = require('express');
+const session = require('express-session');
+
 const axios = require('axios');
 const CosmosClient = require('@azure/cosmos').CosmosClient;
 require('dotenv').config();
