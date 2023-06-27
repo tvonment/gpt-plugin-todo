@@ -6,6 +6,17 @@ info:
 servers:
   - url: https://gpt-plugin-todo-webapp.azurewebsites.net
 paths:
+  /me:
+    get:
+      summary: Gives back the Users Profile information
+      operationId: getMe
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
   /api/todos:
     get:
       summary: Get the list of todos
@@ -90,6 +101,47 @@ paths:
           description: No Content
 components:
   schemas:
+    Me:
+      type: object
+      properties:
+        businessPhones:
+          type: array
+          items:
+            type: string
+          description: The business phone numbers of the user.
+        displayName:
+          type: string
+          description: The display name of the user.
+        givenName:
+          type: string
+          description: The given name (first name) of the user.
+        jobTitle:
+          type: string
+          description: The job title of the user.
+        mail:
+          type: string
+          description: The email address of the user.
+        mobilePhone:
+          type: string
+          description: The mobile phone number of the user.
+        officeLocation:
+          type: string
+          description: The office location of the user.
+        preferredLanguage:
+          type: string
+          description: The preferred language of the user.
+        surname:
+          type: string
+          description: The surname (last name) of the user.
+        userPrincipalName:
+          type: string
+          description: The user principal name (UPN) of the user.
+        id:
+          type: string
+          description: The ID of the user.
+      required:
+        - id
+
     Todo:
       type: object
       properties:

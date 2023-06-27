@@ -15,6 +15,26 @@ const key = process.env.COSMOS_KEY;
 const databaseId = process.env.COSMOS_DATABASE_ID;
 const containerId = process.env.COSMOS_CONTAINER_ID;
 
+const fs = require('fs');
+const manifestTemplate = require('./.well-known/ai-plugin.template.json');
+const manifest = {
+    ...manifestTemplate,
+    auth: {
+        ...manifestTemplate.auth,
+        client_url: process.env.OAUTH_CLIENT_URL,
+        authorization_url: process.env.OAUTH_AUTHORIZATION_URL,
+        verification_tokens: {
+            ...manifestTemplate.auth.verification_tokens,
+            openai: process.env.OPENAI_TOKEN
+        }
+    },
+    api: {
+        ...manifestTemplate.api,
+        url: process.env.HOST + "/.well-known/openapi.yaml"
+    }
+};
+fs.writeFileSync('./.well-known/ai-plugin.json', JSON.stringify(manifest, null, 2));
+
 // Use the variables in your code
 const client = new CosmosClient({ endpoint, key });
 const container = client.database(databaseId).container(containerId);
@@ -39,8 +59,35 @@ app.use(cors({
 app.use('/.well-known', express.static('.well-known'));
 app.use(express.json());
 
+app.use(session({
+    secret: 'my-secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}));
+
 app.get('/', (req, res) => res.send('App Running!'));
 
+app.get('/me', async (req, res) => {
+    // Retrieve the access token from the session cookie
+    const accessToken = req.session.accessToken;
+
+    console.log("TOKEN Session: ", accessToken);
+
+    if (!accessToken) {
+        res.redirect('/auth');
+        return;
+    }
+
+    // Use the access token to make requests to the Microsoft Graph API
+    const { data } = await axios.get('https://graph.microsoft.com/v1.0/me', {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    res.json(data);
+});
 
 // This endpoint is for redirecting the user to the Azure AD's authorization page
 app.get('/auth', (req, res) => {
@@ -69,7 +116,9 @@ app.get('/auth/callback', async (req, res) => {
         // Here, you would typically save the access token for the user in your database
         // For simplicity, I'm just sending it back in the response
 
-        res.json({ accessToken: data.access_token });
+        req.session.accessToken = data.access_token;
+        console.log("TOKEN Retrieved: ", data.accessToken);
+
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
