@@ -1,9 +1,14 @@
 const express = require('express');
+const axios = require('axios');
 const CosmosClient = require('@azure/cosmos').CosmosClient;
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const client_id = process.env.AZURE_AD_CLIENT_ID;
+const client_secret = process.env.AZURE_AD_CLIENT_SECRET;
+const redirect_uri = process.env.AZURE_AD_REDIRECT_URI;
 
 const endpoint = process.env.COSMOS_ENDPOINT;
 const key = process.env.COSMOS_KEY;
@@ -35,6 +40,41 @@ app.use('/.well-known', express.static('.well-known'));
 app.use(express.json());
 
 app.get('/', (req, res) => res.send('App Running!'));
+
+
+// This endpoint is for redirecting the user to the Azure AD's authorization page
+app.get('/auth', (req, res) => {
+    const queryParams = new URLSearchParams({
+        response_type: 'code',
+        client_id: client_id,
+        redirect_uri: redirect_uri,
+        scope: 'User.Read',
+    });
+    res.redirect(`https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize?${queryParams}`);
+});
+
+// This endpoint is for handling the redirect from Azure AD with the authorization code
+app.get('/auth/callback', async (req, res) => {
+    const authCode = req.query.code;
+
+    try {
+        const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', {
+            grant_type: 'authorization_code',
+            client_id: client_id,
+            client_secret: client_secret,
+            redirect_uri: redirect_uri,
+            code: authCode,
+        });
+
+        // Here, you would typically save the access token for the user in your database
+        // For simplicity, I'm just sending it back in the response
+
+        res.json({ accessToken: data.access_token });
+    } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+    }
+});
 
 app.get('/api/todos', async (req, res) => {
     const querySpec = {
