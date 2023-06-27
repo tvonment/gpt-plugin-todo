@@ -16,7 +16,7 @@
     },
     "api": {
         "type": "openapi",
-        "url": "https://${HOST}/.well-known/openapi.yaml"
+        "url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/openapi.yaml"
     },
     "logo_url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/logo.png",
     "contact_email": "dev@dev.com",
