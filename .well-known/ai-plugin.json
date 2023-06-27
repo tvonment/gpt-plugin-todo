@@ -11,7 +11,7 @@
         "authorization_url": "https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token",
         "authorization_content_type": "application/json",
         "verification_tokens": {
-            "openai": "d02061b353c54c15a110235f4be72efc"
+            "openai": "9da2c34f493b47059333f9dd67063560"
         }
     },
     "api": {
