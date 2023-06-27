@@ -11,12 +11,12 @@
         "authorization_url": "https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token",
         "authorization_content_type": "application/json",
         "verification_tokens": {
-            "openai": "<verification_token_from_openai>"
+            "openai": "d02061b353c54c15a110235f4be72efc"
         }
     },
     "api": {
         "type": "openapi",
-        "url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/openapi.yaml"
+        "url": "https://${HOST}/.well-known/openapi.yaml"
     },
     "logo_url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/logo.png",
     "contact_email": "dev@dev.com",
