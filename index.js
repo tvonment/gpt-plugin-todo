@@ -93,6 +93,7 @@ app.get('/me', async (req, res) => {
 
 // This endpoint is for redirecting the user to the Azure AD's authorization page
 app.get('/auth', (req, res) => {
+    console.log("Auth start")
     const queryParams = new URLSearchParams({
         response_type: 'code',
         client_id: client_id,
@@ -105,6 +106,7 @@ app.get('/auth', (req, res) => {
 // This endpoint is for handling the redirect from Azure AD with the authorization code
 app.get('/auth/callback', async (req, res) => {
     const authCode = req.query.code;
+    console.log("Auth Code: ", authCode)
 
     try {
         const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', {
@@ -119,7 +121,7 @@ app.get('/auth/callback', async (req, res) => {
         // For simplicity, I'm just sending it back in the response
 
         req.session.accessToken = data.access_token;
-        console.log("TOKEN Retrieved: ", data.accessToken);
+        console.log("TOKEN Retrieved: ", data.access_token);
 
     } catch (error) {
         console.error(error);
