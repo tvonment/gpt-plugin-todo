@@ -91,17 +91,6 @@ app.get('/me', async (req, res) => {
     res.json(data);
 });
 
-// This endpoint is for redirecting the user to the Azure AD's authorization page
-app.get('/auth', (req, res) => {
-    console.log("Auth start")
-    const queryParams = new URLSearchParams({
-        response_type: 'code',
-        client_id: client_id,
-        redirect_uri: redirect_uri,
-        scope: 'User.Read',
-    });
-    res.redirect(`https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize?${queryParams}`);
-});
 
 // This endpoint is for handling the redirect from Azure AD with the authorization code
 app.get('/auth/callback', async (req, res) => {
@@ -127,6 +116,18 @@ app.get('/auth/callback', async (req, res) => {
         console.error(error);
         res.sendStatus(500);
     }
+});
+
+// This endpoint is for redirecting the user to the Azure AD's authorization page
+app.get('/auth', (req, res) => {
+    console.log("Auth start")
+    const queryParams = new URLSearchParams({
+        response_type: 'code',
+        client_id: client_id,
+        redirect_uri: redirect_uri,
+        scope: 'User.Read',
+    });
+    res.redirect(`https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize?${queryParams}`);
 });
 
 app.get('/api/todos', async (req, res) => {
