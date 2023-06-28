@@ -8,9 +8,17 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+const host = process.env.HOST;
+
 const client_id = process.env.AZURE_AD_CLIENT_ID;
 const client_secret = process.env.AZURE_AD_CLIENT_SECRET;
 const redirect_uri = process.env.AZURE_AD_REDIRECT_URI;
+
+const oauth_client_url = process.env.OAUTH_CLIENT_URL;
+const token_url = host + "/token";
+const openai = process.env.OPENAI_TOKEN;
+
+const plugin_url = process.env.PLUGIN_URL;
 
 const endpoint = process.env.COSMOS_ENDPOINT;
 const key = process.env.COSMOS_KEY;
@@ -23,18 +31,18 @@ const manifest = {
     ...manifestTemplate,
     auth: {
         ...manifestTemplate.auth,
-        client_url: process.env.OAUTH_CLIENT_URL,
-        authorization_url: process.env.OAUTH_AUTHORIZATION_URL,
+        client_url: oauth_client_url,
+        authorization_url: token_url,
         verification_tokens: {
             ...manifestTemplate.auth.verification_tokens,
-            openai: process.env.OPENAI_TOKEN
+            openai: openai
         }
     },
     api: {
         ...manifestTemplate.api,
-        url: process.env.HOST + "/.well-known/openapi.yaml"
+        url: host + "/.well-known/openapi.yaml"
     },
-    logo_url: process.env.HOST + "/.well-known/logo.png"
+    logo_url: host + "/.well-known/logo.png"
 };
 fs.writeFileSync('./.well-known/ai-plugin.json', JSON.stringify(manifest, null, 2));
 
@@ -92,6 +100,17 @@ app.get('/me', async (req, res) => {
     res.json(data);
 });
 
+// This endpoint is for redirecting the user to the Azure AD's authorization page
+app.get('/auth', (req, res) => {
+    console.log("Auth start")
+    const queryParams = new URLSearchParams({
+        response_type: 'code',
+        client_id: client_id,
+        redirect_uri: redirect_uri,
+        scope: 'User.Read',
+    });
+    res.redirect(`https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize?${queryParams}`);
+});
 
 // This endpoint is for handling the redirect from Azure AD with the authorization code
 app.get('/auth/callback', async (req, res) => {
@@ -103,7 +122,7 @@ app.get('/auth/callback', async (req, res) => {
         params.append('grant_type', 'authorization_code');
         params.append('client_id', client_id);
         params.append('client_secret', client_secret);
-        params.append('redirect_uri', "https://chat.openai.com/aip/plugin-a7f79141-7a81-4169-9418-3537616967f8/oauth/callback");
+        params.append('redirect_uri', redirect_uri);
         params.append('code', authCode);
 
         const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', params, {
@@ -117,23 +136,16 @@ app.get('/auth/callback', async (req, res) => {
 
         req.session.accessToken = data.access_token;
         console.log("Data Retrieved: ", data);
-        res.send(data);
+        res.redirect(plugin_url)
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
     }
 });
 
-// This endpoint is for redirecting the user to the Azure AD's authorization page
-app.get('/auth', (req, res) => {
-    console.log("Auth start")
-    const queryParams = new URLSearchParams({
-        response_type: 'code',
-        client_id: client_id,
-        redirect_uri: redirect_uri,
-        scope: 'User.Read',
-    });
-    res.redirect(`https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize?${queryParams}`);
+app.get('/token', (req, res) => {
+    const accessToken = req.session.accessToken;
+    res.json({ access_token: accessToken, token_type: "Bearer" });
 });
 
 app.get('/api/todos', async (req, res) => {
