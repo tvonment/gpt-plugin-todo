@@ -55,9 +55,10 @@ const sessionscontainer = sessionsdatabase.container("sessions");
 
 class CosmosDBStore extends session.Store {
     async get(sid, callback) {
+        console.log("Get SID: ", sid);
         const querySpec = {
-            query: "SELECT * FROM c WHERE c.sid = @sid",
-            parameters: [{ name: "@sid", value: sid }],
+            query: "SELECT * FROM c WHERE c.sessionId = @sessionId",
+            parameters: [{ name: "@sessionId", value: sid }],
         };
 
         try {
@@ -70,8 +71,8 @@ class CosmosDBStore extends session.Store {
     }
 
     async set(sid, session, callback) {
-        console.log("Session: ", session);
-        console.log("SID: ", sid);
+        console.log("Set Session: ", session);
+        console.log("Set SID: ", sid);
         try {
             await sessionscontainer.items.upsert({ sid, session });
             callback(null);
@@ -82,8 +83,8 @@ class CosmosDBStore extends session.Store {
 
     async destroy(sid, callback) {
         const querySpec = {
-            query: "SELECT * FROM c WHERE c.sid = @sid",
-            parameters: [{ name: "@sid", value: sid }],
+            query: "SELECT * FROM c WHERE c.sessionId = @sessionId",
+            parameters: [{ name: "@sessionId", value: sid }],
         };
 
         try {
