@@ -98,12 +98,17 @@ app.get('/auth/callback', async (req, res) => {
     console.log("Auth Code: ", authCode)
 
     try {
-        const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', {
-            grant_type: 'authorization_code',
-            client_id: client_id,
-            client_secret: client_secret,
-            redirect_uri: redirect_uri,
-            code: authCode,
+        const params = new URLSearchParams();
+        params.append('grant_type', 'authorization_code');
+        params.append('client_id', client_id);
+        params.append('client_secret', client_secret);
+        params.append('redirect_uri', redirect_uri);
+        params.append('code', authCode);
+
+        const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
         });
 
         // Here, you would typically save the access token for the user in your database
