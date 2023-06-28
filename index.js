@@ -49,6 +49,11 @@ fs.writeFileSync('./.well-known/ai-plugin.json', JSON.stringify(manifest, null, 
 // Use the variables in your code
 const client = new CosmosClient({ endpoint, key });
 const container = client.database(databaseId).container(containerId);
+const store = new CosmosDBStore({
+    client: client,
+    databaseId: "sessionstore",
+    collectionId: "sessions",
+});
 
 const cors = require('cors');
 
@@ -71,10 +76,10 @@ app.use('/.well-known', express.static('.well-known'));
 app.use(express.json());
 
 app.use(session({
-    secret: 'my-secret',
+    secret: 'test-secret-tobe-changed',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    store: store,
 }));
 
 app.get('/', (req, res) => res.send('App Running!'));
