@@ -3,6 +3,7 @@ const session = require('express-session');
 
 const axios = require('axios');
 const CosmosClient = require('@azure/cosmos').CosmosClient;
+
 require('dotenv').config();
 
 const app = express();
@@ -49,11 +50,51 @@ fs.writeFileSync('./.well-known/ai-plugin.json', JSON.stringify(manifest, null, 
 // Use the variables in your code
 const client = new CosmosClient({ endpoint, key });
 const container = client.database(databaseId).container(containerId);
-const store = new CosmosDBStore({
-    client: client,
-    databaseId: "sessionstore",
-    collectionId: "sessions",
-});
+const sessionsdatabase = client.database("sessionstore");
+const sessionscontainer = sessionsdatabase.container("sessions");
+
+class CosmosDBStore extends session.Store {
+    async get(sid, callback) {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.sid = @sid",
+            parameters: [{ name: "@sid", value: sid }],
+        };
+
+        try {
+            const { resources } = await sessionscontainer.items.query(querySpec).fetchAll();
+            const session = resources[0] ? resources[0].session : null;
+            callback(null, session);
+        } catch (err) {
+            callback(err);
+        }
+    }
+
+    async set(sid, session, callback) {
+        try {
+            await sessionscontainer.items.upsert({ sid, session });
+            callback(null);
+        } catch (err) {
+            callback(err);
+        }
+    }
+
+    async destroy(sid, callback) {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.sid = @sid",
+            parameters: [{ name: "@sid", value: sid }],
+        };
+
+        try {
+            const { resources } = await sessionscontainer.items.query(querySpec).fetchAll();
+            if (resources.length > 0) {
+                await sessionscontainer.item(resources[0].id).delete();
+            }
+            callback(null);
+        } catch (err) {
+            callback(err);
+        }
+    }
+}
 
 const cors = require('cors');
 
@@ -79,7 +120,7 @@ app.use(session({
     secret: 'test-secret-tobe-changed',
     resave: false,
     saveUninitialized: true,
-    store: store,
+    store: new CosmosDBStore(),
 }));
 
 app.get('/', (req, res) => res.send('App Running!'));
