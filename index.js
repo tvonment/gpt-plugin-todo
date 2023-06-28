@@ -111,7 +111,7 @@ app.get('/auth/callback', async (req, res) => {
 
         req.session.accessToken = data.access_token;
         console.log("TOKEN Retrieved: ", data.access_token);
-
+        return data;
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
