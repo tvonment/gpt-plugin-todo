@@ -33,7 +33,8 @@ const manifest = {
     api: {
         ...manifestTemplate.api,
         url: process.env.HOST + "/.well-known/openapi.yaml"
-    }
+    },
+    logo_url: process.env.HOST + "/.well-known/logo.png"
 };
 fs.writeFileSync('./.well-known/ai-plugin.json', JSON.stringify(manifest, null, 2));
 
@@ -102,7 +103,7 @@ app.get('/auth/callback', async (req, res) => {
         params.append('grant_type', 'authorization_code');
         params.append('client_id', client_id);
         params.append('client_secret', client_secret);
-        params.append('redirect_uri', redirect_uri);
+        params.append('redirect_uri', "https://chat.openai.com/aip/plugin-a7f79141-7a81-4169-9418-3537616967f8/oauth/callback");
         params.append('code', authCode);
 
         const { data } = await axios.post('https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token', params, {
