@@ -8,7 +8,7 @@
     "type": "oauth",
     "client_url": "https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/authorize",
     "scope": "User.Read",
-    "authorization_url": "https://login.microsoftonline.com/2bbd7e41-02c9-4b4e-8168-339f900c4319/oauth2/v2.0/token",
+    "authorization_url": "https://gpt-plugin-todo-webapp.azurewebsites.net/token",
     "authorization_content_type": "application/json",
     "verification_tokens": {
       "openai": "1234"
@@ -18,7 +18,7 @@
     "type": "openapi",
     "url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/openapi.yaml"
   },
-  "logo_url": "",
+  "logo_url": "https://gpt-plugin-todo-webapp.azurewebsites.net/.well-known/logo.png",
   "contact_email": "dev@coso.ch",
   "legal_info_url": "http://www.coso.com/legal"
 }

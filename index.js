@@ -70,6 +70,8 @@ class CosmosDBStore extends session.Store {
     }
 
     async set(sid, session, callback) {
+        console.log("Session: ", session);
+        console.log("SID: ", sid);
         try {
             await sessionscontainer.items.upsert({ sid, session });
             callback(null);
@@ -120,7 +122,7 @@ app.use(session({
     secret: 'test-secret-tobe-changed',
     resave: false,
     saveUninitialized: true,
-    store: new CosmosDBStore(),
+    store: new CosmosDBStore,
 }));
 
 app.get('/', (req, res) => res.send('App Running!'));
